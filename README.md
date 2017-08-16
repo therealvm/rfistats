@@ -2,6 +2,14 @@
 
 Gather data statistics from a SIGPROC 32-bit Filterbank file as a function of time and observing frequency. One of the goals is to run it on a number of MeerKAT pulsar search mode observations, to determine which frequency bands are usable. The main feature of this piece of code is its ability to sensibly compute what fraction of a frequency channel is occupied by statistically significant pulses of any width.
 
+### Required python packages
+
+* numpy
+* scipy
+* pandas
+* h5py
+
+matplotlib is of course highly recommended to plot the outputs.
 
 ### Pipeline overview
 
@@ -45,7 +53,7 @@ The output of the executable above is a FilterbankStats object (defined in filte
 
 ```
 from rfistats import FilterbankStats
-fstats = FilterbankStats.load\_hdf5('stats.h5')
+fstats = FilterbankStats.load_hdf5('stats.h5')
 ```
 
 fstats contains as class members a number of 2D numpy arrays (shape = num\_blocks x num\_channels) named after the statistics gathered:
