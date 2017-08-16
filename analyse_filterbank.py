@@ -6,7 +6,7 @@ from collections import namedtuple
 import numpy as np
 
 ### Local module imports
-from workprojects.rfistats.filterbank_stats import analyse_filterbank
+from rfistats.filterbank_stats import analyse_filterbank
 
 ###############################################################################
 
