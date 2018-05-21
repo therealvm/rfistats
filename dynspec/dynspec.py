@@ -39,10 +39,10 @@ or equal to the specified duration."
 
 if __name__ == "__main__":
     args = parse_arguments()
-    #print(args)
-    #print(SigprocHeader(args.filterbank))
+    header = SigprocHeader(args.filterbank)
+    print(header)
 
-    with DedispersionManager(args.filterbank, args.outdir) as manager:
+    with DedispersionManager(args.filterbank, args.outdir, dm=args.dm) as manager:
         data = manager.get_output()
     
     print(data)
