@@ -16,7 +16,9 @@ class DedispersionManager(object):
         self._dm = float(dm)
 
         # Path of temporary dedispersed output
-        self._outname = os.path.join(self.outdir, str(uuid.uuid4()) + "_DM{:.6f}.tim".format(self.dm))
+        #self._outname = os.path.join(self.outdir, str(uuid.uuid4()) + "_DM{:.6f}.tim".format(self.dm))
+        __, fn = os.path.split(self.obsfile)
+        self._outname = os.path.join(self.outdir, fn.replace(".fil", "_DM{:.6f}.tim".format(self.dm)))
 
     @property
     def obsfile(self):
