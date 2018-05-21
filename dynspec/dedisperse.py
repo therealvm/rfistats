@@ -6,6 +6,8 @@ import subprocess
 import uuid
 import numpy
 
+from sigproc_header import SigprocHeader
+
 class DedispersionManager(object):
     """ Context manager for dedispersion. """
     def __init__(self, obsfile, outdir, dm=0.0):
@@ -38,7 +40,14 @@ class DedispersionManager(object):
 
     def get_output(self):
         """ Output dedispersed time series, as numpy float32 array. """
-        return numpy.fromfile(self.outname, dtype=numpy.float32)
+        fname = self.outname
+        header = SigprocHeader(fname)
+        
+        # Load time series data
+        with open(fname, 'rb') as fobj:
+            fobj.seek(header.bytesize)
+            data = numpy.fromfile(fobj, dtype=numpy.float32)
+        return data
 
     def dedispersion_command(self):
         return "dedisperse {obsfile:s} -d {dm:.6f} > {outfile:s}".format(

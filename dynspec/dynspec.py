@@ -44,6 +44,5 @@ if __name__ == "__main__":
 
     with DedispersionManager(args.filterbank, args.outdir) as manager:
         data = manager.get_output()
-        print(data)
-
+    
     print(data)
