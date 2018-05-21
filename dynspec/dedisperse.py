@@ -42,7 +42,7 @@ class DedispersionManager(object):
         """ Output dedispersed time series, as numpy float32 array. """
         fname = self.outname
         header = SigprocHeader(fname)
-        
+
         # Load time series data
         with open(fname, 'rb') as fobj:
             fobj.seek(header.bytesize)
