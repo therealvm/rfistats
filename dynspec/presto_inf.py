@@ -1,54 +1,91 @@
+#
+# PRESTO .inf file parsing module
+# (c) Vincent Morello, 2018
+#
 import os
 import json
 
+from astropy.coordinates import SkyCoord
+import astropy.units as uu
 
-
-# NOTE: Have a look at this, the original C code that reads/writes .inf files
+# The original C code that reads/writes .inf files can be found here:
 # https://github.com/scottransom/presto/blob/master/src/ioinf.c
+# The official way to parse is based on line order.
 
-# The official way to parse is based on line order:
-# Phase 1: basename, telescope, instrument, source, raj, decj, observer, mjd, nsamp, tsamp, num_onoff (11 keys)
-# Parse on off pairs if any
-# Parse EM Band (1 key)
-# Depending on EM band, different things happen. We care about Radio.
-# Phase 2: fov, dm, fbot, bw, nchan, cbw, analyst (7 keys)
+def str2bool(str):
+    """ Convert string to boolean. """
+    return int(str) != 0
 
-# A character '=' is expected on column 40 of each line
+presto_inf_parsing_plan = [
+    ('basename', str),
+    ('telescope', str),
+    ('instrument', str),
+    ('source_name', str),
+    ('raj', str),
+    ('decj', str),
+    ('observer', str),
+    ('mjd', float),
+    ('barycentered', str2bool),
+    ('nsamp', int),
+    ('tsamp', float),
+    ('breaks', str2bool),
+    ('obstype', str),
+    ('fov', float),
+    ('dm', float),
+    ('fbot', float),
+    ('bw', float),
+    ('nchan', int),
+    ('cbw', float),
+    ('analyst', str),
+    ('notes', str)
+    ]
 
+def split_lines(lines):
+    """ Split lines in a .inf file into description/value pairs. """
+    sep = '= ' # NOTE: the trailing space is important
+    pairs = []
+    extra_lines = []
+    for line in lines:
+        try:
+            descr, value = map(str.strip, line.split(sep))
+            pairs.append((descr, value))
+        except:
+            extra_lines.append(line)
+    return pairs, extra_lines
 
-def lowercase_stripped(s):
-    """ Cast string to lowercase, strip spaces on the edges, and then replace
-    sequences of multiple spaces by a single one. This function is applied
-    to the value descriptions in a .inf file. """
-    return " ".join(s.lower().strip().split())
+def parse_pairs(pairs, extra_lines):
+    """ Parse the output of split_lines() into a dictionary. """
+    onoff_pairs = pairs[13:-7]
+    keyval_pairs = pairs[:13] + pairs[-7:]
+
+    # "Additional notes" at the end of the file
+    # We append that to the key-value pair list and parse it as any other
+    notes = '\n'.join(extra_lines[1:]).strip()
+    keyval_pairs.append(('notes', notes))
+
+    # Parsed key-value pairs as dictionary
+    items = {}
+    for pair, plan_step in zip(keyval_pairs, presto_inf_parsing_plan):
+        descr, value = pair
+        keyname, keytype = plan_step
+        items[keyname] = keytype(value)
+    return items
+
+def inf2dict(text):
+    """ Parse the text of a PRESTO .inf file into a dictionary. """
+    lines = text.strip().split('\n')
+    pairs, extra_lines = split_lines(lines)
+    return parse_pairs(pairs, extra_lines)
+
 
 class PrestoInf(dict):
     """ Parse PRESTO's .inf files that contain dedispersed time series
     metadata. """
-
-    _KEYVAL_SEP = "= " # Note the trailing space
-
     def __init__(self, fname):
         self._fname = os.path.realpath(fname)
-
-        with open(self.fname) as fobj:
-            lines = fobj.read().rstrip().split('\n')
-
-        self.lines = lines
-
-        raw_attrs = {}
-        sep = self._KEYVAL_SEP
-        for line in lines:
-            try:
-                descr, val = line.split(sep)
-                descr = descr.strip()
-                val = val.strip()
-            except Exception as err:
-                print(type(err))
-                print(err)
-            raw_attrs[descr] = val
-
-        super(PrestoInf, self).__init__(raw_attrs)
+        with open(fname, 'r') as fobj:
+            items = inf2dict(fobj.read())
+        super(PrestoInf, self).__init__(items)
 
     @property
     def fname(self):
@@ -58,10 +95,4 @@ class PrestoInf(dict):
     @property
     def skycoord(self):
         """ astropy.SkyCoord object with the coordinates of the source. """
-        return None
-
-if __name__ == '__main__':
-    #inf = PrestoInf("/home/vince/work/pulsars/presto_time_series/J1855+0307/J1855+0307_DM400.00.inf")
-    inf = PrestoInf("LOTAAS.inf")
-    for key in sorted(inf.keys()):
-        print('\"' + key + '\"', ':', inf[key])
+        return SkyCoord(self['raj'], self['decj'], unit=(uu.hour, uu.degree))
