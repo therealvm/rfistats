@@ -28,6 +28,11 @@ def parse_arguments():
         help="DM at which to dedisperse the input data before analysis."
         )
     parser.add_argument(
+        '-m', '--maskfile', type=str, default=None,
+        help="Optional file specifying a list of channels to ignore, which is \
+        passed to SIGPROC's dedisperse."
+        )
+    parser.add_argument(
         '-L', '--tblock', type=float, default=10.0,
         help="Length of time series blocks to FFT independently, in seconds. \
 NOTE: Will be set to the largest power-of-two number of samples that is lower\
@@ -48,7 +53,7 @@ if __name__ == "__main__":
 
     # Dedisperse using external program, automatically cleanup
     # temporary output files
-    with DedispersionManager(args.filterbank, args.outdir, dm=args.dm) as manager:
+    with DedispersionManager(args.filterbank, args.outdir, maskfile=args.maskfile, dm=args.dm) as manager:
         data = manager.get_output()
 
     # Compute and save dynamic spectrum, the center times of each

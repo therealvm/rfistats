@@ -10,8 +10,12 @@ from sigproc_header import SigprocHeader
 
 class DedispersionManager(object):
     """ Context manager for dedispersion. """
-    def __init__(self, obsfile, outdir, dm=0.0):
+    def __init__(self, obsfile, outdir, maskfile=None, dm=0.0):
         self._obsfile = os.path.realpath(str(obsfile))
+        self._maskfile = None
+        if maskfile is not None:
+            self._maskfile = os.path.realpath(str(maskfile))
+
         self._outdir = os.path.realpath(outdir)
         self._dm = float(dm)
 
@@ -29,6 +33,11 @@ class DedispersionManager(object):
     def outdir(self):
         """ Output directory """
         return self._outdir
+
+    @property
+    def maskfile(self):
+        """ Channel mask file to pass to SIGPROC's dedisperse """
+        return self._maskfile
 
     @property
     def dm(self):
@@ -52,10 +61,14 @@ class DedispersionManager(object):
         return data
 
     def dedispersion_command(self):
-        return "dedisperse {obsfile:s} -d {dm:.6f} > {outfile:s}".format(
+        elements = []
+        elements.append("dedisperse {obsfile:s} -d {dm:.6f}".format(
             obsfile=self.obsfile,
-            dm=self.dm,
-            outfile=self.outname)
+            dm=self.dm))
+        if self.maskfile:
+            elements.append("-i {maskfile:s}".format(maskfile=self.maskfile))
+        elements.append("> {outname:s}".format(outname=self.outname))
+        return " ".join(elements)
 
     def execute_dedispersion(self):
         command = self.dedispersion_command()
