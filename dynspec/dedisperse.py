@@ -91,4 +91,5 @@ class DedispersionManager(object):
         return self
 
     def __exit__(self, extype, exval, traceback):
-        self.cleanup()
+        #self.cleanup()
+	pass
