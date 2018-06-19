@@ -1,13 +1,14 @@
 """
 Compute the Dynamic Spectrum of a Filterbank at a specified DM.
 """
+from __future__ import print_function
 import os
 import argparse
 import numpy
 
-from rfistats.dynspec.sigproc_header import SigprocHeader
-from rfistats.dynspec.presto_inf import PrestoInf
-from rfistats.dynspec.core import dynamic_spectrum
+from sigproc_header import SigprocHeader
+from presto_inf import PrestoInf
+from core import dynamic_spectrum
 
 
 def parse_arguments():
@@ -45,9 +46,8 @@ or equal to the specified duration."
 
 
 def outfile_name(input_fname, outdir):
-    print(input_fname, outdir)
     __, name = os.path.split(input_fname)
-    name = name.rsplit('.', maxsplit=1)[0]
+    name = name.rsplit('.', 1)[0]
     outfile = "{:s}_dynspec.npz".format(name)
     return os.path.realpath(os.path.join(outdir, outfile))
 
