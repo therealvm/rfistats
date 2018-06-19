@@ -5,6 +5,7 @@
 import os
 import json
 
+import numpy
 from astropy.coordinates import SkyCoord
 import astropy.units as uu
 
@@ -33,7 +34,7 @@ presto_inf_parsing_plan = [
     ('fov', float),
     ('dm', float),
     ('fbot', float),
-    ('bw', float),
+    ('bandwidth', float),
     ('nchan', int),
     ('cbw', float),
     ('analyst', str),
@@ -55,8 +56,8 @@ def split_lines(lines):
 
 def parse_pairs(pairs, extra_lines):
     """ Parse the output of split_lines() into a dictionary. """
-    onoff_pairs = pairs[13:-7]
-    keyval_pairs = pairs[:13] + pairs[-7:]
+    onoff_pairs = pairs[12:-8]
+    keyval_pairs = pairs[:12] + pairs[-8:]
 
     # "Additional notes" at the end of the file
     # We append that to the key-value pair list and parse it as any other
@@ -77,7 +78,6 @@ def inf2dict(text):
     pairs, extra_lines = split_lines(lines)
     return parse_pairs(pairs, extra_lines)
 
-
 class PrestoInf(dict):
     """ Parse PRESTO's .inf files that contain dedispersed time series
     metadata. """
@@ -93,6 +93,16 @@ class PrestoInf(dict):
         return self._fname
 
     @property
+    def data_fname(self):
+        """ Path to the associated .dat file """
+        # NOTE: second argument of rsplit() is 'maxsplit'
+        return self.fname.rsplit('.', 1)[0] + '.dat'
+
+    @property
     def skycoord(self):
         """ astropy.SkyCoord object with the coordinates of the source. """
         return SkyCoord(self['raj'], self['decj'], unit=(uu.hour, uu.degree))
+
+    def load_data(self):
+        """ Returns the associated time series data as a numpy float32 array. """
+        return numpy.fromfile(self.data_fname, dtype=numpy.float32)

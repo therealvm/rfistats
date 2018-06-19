@@ -6,7 +6,8 @@ import subprocess
 import uuid
 import numpy
 
-from sigproc_header import SigprocHeader
+from rfistats.dynspec.sigproc_header import SigprocHeader
+
 
 class DedispersionManager(object):
     """ Context manager for dedispersion. """
@@ -92,4 +93,4 @@ class DedispersionManager(object):
 
     def __exit__(self, extype, exval, traceback):
         #self.cleanup()
-	pass
+	    pass
