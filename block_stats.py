@@ -1,8 +1,8 @@
 import numpy as np
 import pandas
 
-from .stats_utils import robust_std
-from .convolution import BoxcarConvolver
+from stats_utils import robust_std
+from convolution import BoxcarConvolver
 
 def normalise_block(data):
     med = np.median(data, axis=0)

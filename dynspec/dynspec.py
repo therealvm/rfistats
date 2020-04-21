@@ -6,7 +6,7 @@ import os
 import argparse
 import numpy
 
-from sigproc_header import SigprocHeader
+from rfistats.sigproc_header import SigprocHeader
 from presto_inf import PrestoInf
 from core import dynamic_spectrum
 

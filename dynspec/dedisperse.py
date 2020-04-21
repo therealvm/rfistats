@@ -6,7 +6,7 @@ import subprocess
 import uuid
 import numpy
 
-from rfistats.dynspec.sigproc_header import SigprocHeader
+from rfistats.sigproc_header import SigprocHeader
 
 
 class DedispersionManager(object):

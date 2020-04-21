@@ -1,8 +1,8 @@
 import numpy as np
 import h5py
 
-from .filterbank import Filterbank
-from .block_stats import analyse_block
+from filterbank import Filterbank
+from block_stats import analyse_block
 
 
 class DataBlock(object):
