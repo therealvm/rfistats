@@ -1,5 +1,6 @@
 import numpy as np
 import h5py
+import warnings
 
 from filterbank import Filterbank
 from block_stats import analyse_block
@@ -66,9 +67,18 @@ class FilterbankIterator(object):
         else:
             self.filterbank = filterbank
             
-        if self.filterbank.nbits != 32:
-            raise ValueError('FilterbankIterator: only 32-bit filterbanks are supported')
-            
+        if self.filterbank.nbits not in {8, 32}:
+            raise ValueError('Only 8-bit and 32-bit filterbanks are supported')
+
+        self.dtype = np.float32
+        if self.filterbank.nbits == 8:
+            if not 'signed' in self.filterbank._header:
+                warnings.warn("Filterbank header does NOT specify 8-bit signedness ! Assuming *signed* 8-bit data.")
+                self.dtype = np.int8
+            else:
+                signed = self.filterbank._header['signed']
+                self.dtype = np.int8 if signed else np.uint8
+
         self.gulp = max(self._GULP_MIN, int(gulp))
         
         # Define bounds
@@ -91,7 +101,8 @@ class FilterbankIterator(object):
     
     def __next__(self):
         nchan = self.filterbank.nchans
-        data = np.fromfile(self.file, dtype=np.float32, count=nchan*self.gulp)
+        # Don't forget to cast to float32 after reading
+        data = np.fromfile(self.file, dtype=self.dtype, count=nchan*self.gulp).astype(np.float32)
         nsr = data.size // nchan
         self.isamp += nsr
         if nsr < self.gulp or self.isamp > self.end:
@@ -188,8 +199,8 @@ def analyse_filterbank(fname, start=0, end=None, gulp=2048, wmax=128, wtsp=2.0, 
         ndata, mask, df = analyse_block(block.data, wmax=wmax, wtsp=wtsp, thr=thr)
         for key in df.columns:
             if key in stats:
-                stats[key].append(df[key].as_matrix())
+                stats[key].append(df[key].values)
             else:
-                stats[key] = [df[key].as_matrix()]
+                stats[key] = [df[key].values]
         times.append(block.times[0])
     return FilterbankStats(fil.tsamp, fil.freqs, gulp, times, stats)

@@ -1,6 +1,6 @@
 # rfistats
 
-Gather data statistics from a SIGPROC 32-bit Filterbank file as a function of time and observing frequency. One of the goals is to run it on a number of MeerKAT pulsar search mode observations, to determine which frequency bands are usable. The main feature of this piece of code is its ability to sensibly compute what fraction of a frequency channel is occupied by statistically significant pulses of any width.
+Gather data statistics from a SIGPROC 8-bit or 32-bit Filterbank file as a function of time and observing frequency. One of the goals is to run it on a number of MeerKAT pulsar search mode observations, to determine which frequency bands are usable. The main feature of this piece of code is its ability to sensibly compute what fraction of a frequency channel is occupied by statistically significant pulses of any width.
 
 ### Required python packages
 
@@ -68,7 +68,7 @@ fstats contains as class members a number of 2D numpy arrays (shape = num\_block
 
 ### Limitations
 
-* Only 32-bit SIGPROC filterbanks are supported.
+* Only 8-bit and 32-bit SIGPROC filterbanks are supported.
 * Slow: about 10x real time for 4,096 channel data sampled at 153 us.
 * A wide pulse spread across two consecutive data blocks may not be properly flagged. It should not be much of a problem as long as 'gulp' is always much (8+ times) larger than 'wmax'.
 
