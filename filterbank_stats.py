@@ -2,8 +2,8 @@ import numpy as np
 import h5py
 import warnings
 
-from filterbank import Filterbank
-from block_stats import analyse_block
+from rfistats.filterbank import Filterbank
+from rfistats.block_stats import analyse_block
 
 
 class DataBlock(object):

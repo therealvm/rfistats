@@ -6,7 +6,7 @@ from collections import namedtuple
 import numpy as np
 
 ### Local module imports
-from filterbank_stats import analyse_filterbank
+from rfistats.filterbank_stats import analyse_filterbank
 
 ###############################################################################
 
@@ -28,7 +28,6 @@ def parse_args():
 
 
 def main(args):
-    print(args)
     fstats = analyse_filterbank(args.fname, start=args.start, end=args.end, gulp=args.gulp, wmax=args.wmax, wtsp=args.wtsp)
     outfile = args.outname + '.h5'
     fstats.save_hdf5(outfile)

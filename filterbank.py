@@ -2,7 +2,7 @@ import numpy
 import struct
 import os
 
-from sigproc_header import SigprocHeader
+from rfistats.sigproc_header import SigprocHeader
 
 ################################################################################
 
